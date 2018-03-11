@@ -1,13 +1,17 @@
+#!/usr/bin/env python2.7
+
 import psycopg2
 
 DBNAME = "news"
 top_three_article = """
-    SELECT articles.title, count(*) as access
-    FROM articles LEFT JOIN log
+    SELECT articles.title, views
+    FROM articles LEFT JOIN (
+      SELECT path, count(path) AS views
+      FROM log
+      GROUP BY log.path
+    ) AS log
     ON log.path = concat('/article/', articles.slug)
-    WHERE log.status LIKE '%200%'
-    GROUP BY articles.title
-    ORDER BY access DESC
+    ORDER BY views DESC
     LIMIT 3;
 """
 
@@ -50,13 +54,15 @@ queries_to_run = []
 
 
 def get_query_results(cursor, query):
+    """Retreive query result from database"""
     cursor.execute(query)
     return cursor.fetchall()
 
 
 def print_query_result(results):
+    """Print result in a user friendly format"""
     for row in results:
-        print row[0], "--", row[1]
+        print('{} -- {}'.format(row[0], row[1]))
 
 db = psycopg2.connect(database=DBNAME)
 c = db.cursor()
@@ -76,6 +82,5 @@ result3 = get_query_results(c, error_rate_over_one_percent)
 print "Days with more than 1% of requests lead to errors (date - error rate %)"
 print_query_result(result3)
 print "\n"
-
 
 db.close()

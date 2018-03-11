@@ -1,4 +1,3 @@
-'''
 news=> \d authors
                          Table "public.authors"
  Column |  Type   |                      Modifiers
@@ -42,4 +41,3 @@ news=> \d log
  id     | integer                  | not null default nextval('log_id_seq'::regclass)
 Indexes:
     "log_pkey" PRIMARY KEY, btree (id)
-'''
